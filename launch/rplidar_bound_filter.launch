@@ -1,0 +1,10 @@
+<launch>
+  <node name="laser_bound_filter" pkg="laser_bound_filter" type="laser_bound_filter" output="screen" >
+    <param name="lower_bound" value="-1.57" />
+    <param name="upper_bound" value="1.57" />
+    <param name="inner_bound_flag" value="false" />
+  </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="laser2bound" args="0 0 0 0 3.1415926 0 /laser /laser_bound 100" />
+
+</launch>
