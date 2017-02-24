@@ -1,0 +1,106 @@
+#include "ros/ros.h"
+#include "sensor_msgs/LaserScan.h"
+
+class LaserFilter
+{
+  public:
+    LaserFilter();
+    
+
+  private:
+    void takeoff();
+    void land();
+    void reset();
+    void clear_targets();
+    void Free_pointers();
+    void Manual(int com_char);
+    void targets2tum_ardrone(float x, float y, float z, float yaw);
+    float Quaternion2Yaw(float qz, float qw);
+    int keyboard(); 
+    int index2;
+    int path_follow_index;
+    float Position[4];
+    float Target[4];
+    float *path_x;
+    float *path_y; 
+    float *path_z;
+    float *path_w;
+    
+    char manual_selection;
+
+    ros::NodeHandle n;                               // so that we dont make a copy while passing this as reference
+    ros::Subscriber nav_sub;                         // subscribing to the pos_estimate_data from the tum_ardrone topic
+    ros::Subscriber path_sub;			     // subscribing to the display_planned_path from Moveit topic
+    ros::Publisher cmd_vel_pub;                      // this will be publishing the command velocity to the drone
+    ros::Publisher tum_ardrone_pub;		     // this will be publishing the Target to the TUM package
+    geometry_msgs::Twist twist_manual, twist_pos;    // the message we use to send command to the drone
+    
+    void nav_callback(const tum_ardrone::filter_stateConstPtr tum_msg);
+    void path_callback(const moveit_msgs::DisplayTrajectory msg);
+};
+
+
+//-------Set up all members in the "ArdroneControl class"------
+ArdroneControl::ArdroneControl()
+{
+  cmd_vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 1, true);
+  nav_sub = n.subscribe("/ardrone/predictedPose", 50, &ArdroneControl::nav_callback, this);
+  path_sub = n.subscribe("/move_group/display_planned_path", 1, &ArdroneControl::path_callback, this);
+  tum_ardrone_pub = n.advertise<std_msgs::String>("tum_ardrone/com",50, true);
+
+  twist_manual.linear.x = twist_manual.linear.y = twist_manual.linear.x = 0.0;
+  Target[ptam_x] = Target[ptam_y] = Target[ptam_z] = Target[ptam_yaw] = 0.0;
+  index2 = 0;
+  path_follow_index = 0;
+
+  path_x = (float*)malloc(20 * sizeof(float));
+  path_y = (float*)malloc(20 * sizeof(float));
+  path_z = (float*)malloc(20 * sizeof(float));
+  path_w = (float*)malloc(20 * sizeof(float));
+}
+
+void ArdroneControl::takeoff()
+{
+  ros::Rate poll_rate(100);
+
+  ros::Publisher takeoff = n.advertise<std_msgs::Empty>("ardrone/takeoff", 1, true);
+  takeoff.publish(std_msgs::Empty());
+
+  while(takeoff.getNumSubscribers() == 0)
+      poll_rate.sleep();  
+  takeoff.shutdown();
+
+  ROS_INFO("TAKEOFF");
+}
+
+void ArdroneControl::reset()
+{
+  ROS_INFO("RESET");
+  ros::Rate poll_rate(100);
+
+  ros::Publisher reset = n.advertise<std_msgs::Empty>("ardrone/reset", 1, true);
+  reset.publish(std_msgs::Empty());
+
+  while(reset.getNumSubscribers() == 0)
+      poll_rate.sleep();  
+  reset.shutdown();
+
+  
+}
+
+
+
+
+
+//------------Main function-----------------
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "Laser_Bound_Filter");
+  ROS_INFO("=== Laser Bound Filter Start ===");  
+  LaserFilter laser_filter;
+
+  while( ros::ok() )
+    ros::spin();
+
+  return EXIT_SUCCESS;
+}
