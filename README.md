@@ -25,3 +25,5 @@ In contrast, the outer mode is for the usage of cutting area in the middle. To u
 be able to provide 360-deg scan data. For instance, the unwanted are is from -80 ~ 70, then this node will rearrange data   
 from - 100 ~ 110. Hence, the external static tf is required to reproject output scan result to original direction.
 
+## License
+BSD
