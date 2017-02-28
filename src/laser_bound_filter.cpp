@@ -59,7 +59,6 @@ class LaserFilter
 };
 
 
-//-------Set up all members in the "ArdroneControl class"------
 LaserFilter::LaserFilter()
 {
   lower_bound_ = -1.95;
@@ -125,7 +124,7 @@ void LaserFilter::scan_callback(const sensor_msgs::LaserScan& scan_origin)
       current_angle = current_angle + scan_bound.angle_increment;
     }//end of for-loop
   }
-  else //For outer bound mode, only support 360 laser scan
+  else //For outer bound mode, only supports 360 laser scan
   {
     int first_half_id  = abs( (int)( (-PI_RAD - lower_bound_)/scan_bound.angle_increment  ) );
     int second_half_id = abs( (int)( ( PI_RAD - upper_bound_)/scan_bound.angle_increment  ) );
