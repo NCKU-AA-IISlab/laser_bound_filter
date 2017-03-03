@@ -137,7 +137,7 @@ void LaserFilter::scan_callback(const sensor_msgs::LaserScan& scan_origin)
         scan_bound.ranges[count] = scan_origin.ranges[first_half_id - i];
         count++;
     }
-    for(unsigned int i = 0; i < second_half_id; ++i)
+    for(unsigned int i = 1; i < second_half_id; ++i) //Start from 1 to avoid wrong range value on center 
     {
         scan_bound.intensities[count] = scan_origin.intensities[scan_ori_size - i];
         scan_bound.ranges[count] = scan_origin.ranges[scan_ori_size - i];
